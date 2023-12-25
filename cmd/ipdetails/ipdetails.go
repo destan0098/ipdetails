@@ -9,6 +9,7 @@ import (
 	"github.com/TwiN/go-color"
 	"github.com/tealeg/xlsx"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/net/html"
 	"io"
 	"io/ioutil"
 	"log"
@@ -246,11 +247,58 @@ func main() {
 
 	//	fmt.Println(det.Data.Prefixes[lenss].Asn.Description)
 }
+func titleshow(urls string) (string, bool) {
+	ipurl := fmt.Sprintf("http://%s", urls)
+
+	//fmt.Println(ipurl)
+	spaceClient := http.Client{
+		Timeout: time.Second * time.Duration(timeout), // Timeout after 2 seconds
+	}
+
+	req, err := http.NewRequest(http.MethodGet, ipurl, nil)
+	if err != nil {
+		return "", true
+	}
+
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/112.0")
+
+	res, getErr := spaceClient.Do(req)
+	if getErr != nil {
+
+		return "", true
+
+	}
+	defer res.Body.Close()
+	tokenizer := html.NewTokenizer(res.Body)
+	for {
+		tokenType := tokenizer.Next()
+		switch tokenType {
+		case html.ErrorToken:
+			// End of the document
+			//	fmt.Println("Title not found.")
+			return "", true
+		case html.StartTagToken, html.SelfClosingTagToken:
+			token := tokenizer.Token()
+			if token.Data == "title" {
+				// Move to the next token to get the title content
+				tokenType = tokenizer.Next()
+				if tokenType == html.TextToken {
+					// Print the title content
+					//fmt.Printf("Title: %s\n", tokenizer.Token().Data)
+					return tokenizer.Token().Data, false
+				}
+			}
+		}
+	}
+	return tokenizer.Token().Data, false
+
+}
 
 func datamin(urls string) {
 	var long, lat string
 	var latlong []string
-
+	var title string
+	var errs bool
 	var lenss int
 	ipadd := hosttoip(urls)
 	det, err := asnshow(ipadd)
@@ -260,7 +308,10 @@ func datamin(urls string) {
 	lenss = len(det.Data.Prefixes)
 	lenss--
 	startIP, endIP := getStartEndIP(det.Data.RirAllocation.Prefix)
-
+	title, errs = titleshow(ipadd)
+	if errs {
+		title = ""
+	}
 	fmt.Printf(color.Colorize(color.Green, "[ + ] Scanning IP %s \n"), ipadd)
 	if det.Status == "ok" {
 		det2, err := IpInfo(ipadd)
@@ -274,31 +325,31 @@ func datamin(urls string) {
 			long = latlong[1]
 		}
 		if len(det.Data.Prefixes) == 0 {
-			m := Res{ipadd, "*", "*", "*", startIP.String(), endIP.String(), det2.Country, det2.City, lat, long, det2.Org, det2.Region, "*", det.Data.RirAllocation.Prefix, det2.Hostname, det.Data.RirAllocation.DateAllocated}
+			m := Res{ipadd, "*", "*", "*", startIP.String(), endIP.String(), det2.Country, det2.City, lat, long, det2.Org, det2.Region, title, det.Data.RirAllocation.Prefix, det2.Hostname, det.Data.RirAllocation.DateAllocated}
 			// Append directly to the map
 			ipresult[ipadd] = append(ipresult[ipadd], m)
 
 			if outputfiletype == "csv" {
-				writeResultscsv(ipadd, "*", "*", "*", startIP.String(), endIP.String(), det2.Country, det2.City, lat, long, det2.Org, det2.Region, "*", det.Data.RirAllocation.Prefix, det2.Hostname, det.Data.RirAllocation.DateAllocated)
+				writeResultscsv(ipadd, "*", "*", "*", startIP.String(), endIP.String(), det2.Country, det2.City, lat, long, det2.Org, det2.Region, title, det.Data.RirAllocation.Prefix, det2.Hostname, det.Data.RirAllocation.DateAllocated)
 			} else if outputfiletype == "json" {
 				writeResultsjson(ipresult)
 			} else if outputfiletype == "excel" {
-				writeResultsxls(ipadd, "*", "*", "*", startIP.String(), endIP.String(), det2.Country, det2.City, lat, long, det2.Org, det2.Region, "*", det.Data.RirAllocation.Prefix, det2.Hostname, det.Data.RirAllocation.DateAllocated)
+				writeResultsxls(ipadd, "*", "*", "*", startIP.String(), endIP.String(), det2.Country, det2.City, lat, long, det2.Org, det2.Region, title, det.Data.RirAllocation.Prefix, det2.Hostname, det.Data.RirAllocation.DateAllocated)
 
 			} else {
 				fmt.Println("Enter json or csv")
 			}
 		} else {
-			m := Res{ipadd, "*", "*", "*", startIP.String(), endIP.String(), det2.Country, det2.City, lat, long, det2.Org, det2.Region, det.Data.Prefixes[0].Name, det.Data.RirAllocation.Prefix, det2.Hostname, det.Data.RirAllocation.DateAllocated}
+			m := Res{ipadd, "*", "*", "*", startIP.String(), endIP.String(), det2.Country, det2.City, lat, long, det2.Org, det2.Region, title, det.Data.RirAllocation.Prefix, det2.Hostname, det.Data.RirAllocation.DateAllocated}
 			// Append directly to the map
 			ipresult[ipadd] = append(ipresult[ipadd], m)
 
 			if outputfiletype == "csv" {
-				writeResultscsv(ipadd, "*", "*", "*", startIP.String(), endIP.String(), det2.Country, det2.City, lat, long, det2.Org, det2.Region, det.Data.Prefixes[0].Name, det.Data.Prefixes[0].Prefix, det2.Hostname, det.Data.RirAllocation.DateAllocated)
+				writeResultscsv(ipadd, "*", "*", "*", startIP.String(), endIP.String(), det2.Country, det2.City, lat, long, det2.Org, det2.Region, title, det.Data.Prefixes[0].Prefix, det2.Hostname, det.Data.RirAllocation.DateAllocated)
 			} else if outputfiletype == "json" {
 				writeResultsjson(ipresult)
 			} else if outputfiletype == "excel" {
-				writeResultsxls(ipadd, "*", "*", "*", startIP.String(), endIP.String(), det2.Country, det2.City, lat, long, det2.Org, det2.Region, det.Data.Prefixes[0].Name, det.Data.Prefixes[0].Prefix, det2.Hostname, det.Data.RirAllocation.DateAllocated)
+				writeResultsxls(ipadd, "*", "*", "*", startIP.String(), endIP.String(), det2.Country, det2.City, lat, long, det2.Org, det2.Region, title, det.Data.Prefixes[0].Prefix, det2.Hostname, det.Data.RirAllocation.DateAllocated)
 
 			} else {
 				fmt.Println("Enter json or csv")
