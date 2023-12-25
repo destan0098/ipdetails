@@ -1,12 +1,15 @@
-﻿# This Tool BruteForce Basic Authentication  
+﻿# This Tool extact ip info and save it in csv , json and excel file
+
+
 ![Static Badge](https://img.shields.io/badge/Go-100%25-brightgreen)
 ## Description
 
-This Tool BruteForce Basic Authentication  with wordlist 
+This Tool extact ip info and save it in csv , json and excel file
+
 This tool is for training.
 
 
-- BruteForce 
+- Extract Ip Details 
 
 
 
@@ -21,11 +24,11 @@ This tool is for training.
 ## Installation
 
 ```
-go install github.com/destan0098/basicauthbruteforce/cmd/basicauthbruteforce@latest
+go install github.com/destan0098/ipdetails/cmd/ipdetails@latest
 ```
 or use
 ```
-git clone https://github.com/destan0098/basicauthbruteforce.git
+git clone https://github.com/destan0098/ipdetails.git
 
 ```
 
@@ -34,20 +37,18 @@ git clone https://github.com/destan0098/basicauthbruteforce.git
 
 ```
 USAGE:
-   basicauthbruteforce.exe [global options] command [command options] [arguments...]
+   ipdetails.exe [global options] command [command options] [arguments...]
 
 COMMANDS:
    help, h  Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --url value, -d value       Enter Site URL
-   --username value, -u value  Enter Username Wordlist
-   --password value, -p value  Enter Password Wordlist
-   --rate value, -r value      rate limit (default: 1)
-   --random-agent, -a          Random Agent (default: false)
-   --delay, -e                 Delay between request , default 0 , if use best rate =1 
+   --list value, -l value      Enter a list from a text file
+   --pipe, -p                  Enter just from a pipeline (default: false)
+   --timeout value, -t value   Time out Port Scanning in second  (default: 2)
+   --filename value, -f value  output file name (default: "test")
+   --type value, -y value      output file type json or csv or excel (default: "csv")
    --help, -h                  show help
-BasicAuth
 
 ```
 
@@ -59,6 +60,8 @@ BasicAuth
 
 ## Features
 
-This Tool BruteForce Basic Authentication  with wordlist 
+This Tool extact ip info and save it in csv , json and excel file
+
+ 
 
 
