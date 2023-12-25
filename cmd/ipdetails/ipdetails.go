@@ -243,9 +243,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	//i := 10
-
-	//	fmt.Println(det.Data.Prefixes[lenss].Asn.Description)
 }
 func titleshow(urls string) (string, bool) {
 	ipurl := fmt.Sprintf("http://%s", urls)
@@ -418,7 +415,7 @@ func IpInfo(urls string) (ipinfo, error) {
 		return ipinfo{}, err
 
 	}
-	//fmt.Println(string(body))
+
 	jsonErr := json.Unmarshal(body, &json_resp)
 
 	if jsonErr != nil {
@@ -426,7 +423,6 @@ func IpInfo(urls string) (ipinfo, error) {
 		return ipinfo{}, err
 
 	}
-	//	ipsstr := fmt.Sprintf("%s", ips[0])
 
 	return json_resp, nil
 }
@@ -455,12 +451,11 @@ func asnshow(ipAddr string) (BgpView, error) {
 
 	var jsonasn_resp BgpView
 
-	//	fmt.Println(ips[0])
 	ipurl := fmt.Sprintf("https://api.bgpview.io/ip/%s", ipAddr)
 	spaceClient := http.Client{
 		Timeout: time.Second * time.Duration(timeout), // Timeout after 2 seconds
 	}
-	//fmt.Println(ipurl)
+
 	req, err := http.NewRequest(http.MethodGet, ipurl, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -489,13 +484,7 @@ func asnshow(ipAddr string) (BgpView, error) {
 	if readErr != nil {
 		log.Fatal(readErr)
 	}
-	//bodyString := string(body)
 
-	// Search for a specific substring or pattern in the body
-	//if strings.Contains(bodyString, "\"prefixes\":[]") {
-	//
-	//}
-	//fmt.Println(ipurl)
 	jsonErr := json.Unmarshal(body, &jsonasn_resp)
 	if jsonErr != nil {
 		return BgpView{}, jsonErr
@@ -632,14 +621,3 @@ func writeJSONFile(file *os.File, results map[string][]Res) {
 		log.Fatal(err)
 	}
 }
-
-//func writeJSONFile(file *os.File, results map[string][]Res) {
-//	jsonData, err := json.MarshalIndent(results, "", " ")
-//	if err != nil {
-//		log.Fatal(err)
-//	}
-//
-//	if _, err := file.Write(jsonData); err != nil {
-//		log.Fatal(err)
-//	}
-//}
