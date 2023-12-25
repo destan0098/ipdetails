@@ -1,4 +1,4 @@
-module ipdetails
+module github.com/destan0098/ipdetails
 
 go 1.20
 
